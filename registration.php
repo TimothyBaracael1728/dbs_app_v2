@@ -1,47 +1,34 @@
 <?php
- 
-session_start();
- 
-require_once('classess/database.php');
-$con = new database();
- 
-$sweetAlertConfig = ""; //Initialize SweetAlert script variable
- 
-if (isset($_POST['register'])) {
- 
-  $username = $_POST['username'];
-  $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
-  $firstname = $_POST['first_name'];
-  $email = $_POST['email'];
-  $lastname = $_POST['last_name'];
-  $userID = $con->signupUser($firstname, $lastname, $username, $email, $password);
- 
-  if ($userID) {
- 
+  session_start();
+  require_once('classess/database.php');
+    $con = new database();
+    $sweetAlertConfig = "";
+  if (isset($_POST['register'])){
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $password = password_hash($_POST['password'],PASSWORD_BCRYPT);
+    $firstname = $_POST['first_name'];
+    $lastname = $_POST['last_name'];
+    $userID = $con->signupUser($firstname, $lastname, $username, $email, $password);
+  if ($userID){
     $sweetAlertConfig = "
-    <script>
-   
+  <script>
     Swal.fire({
-        icon: 'success',
-        title: 'Registration Successful',
-        text: 'Your account has been created successfully!',
-        confirmationButtontext: 'OK'
-     }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = 'login.php'
-        }
-            });
- 
-    </script>";
+      title: 'Registration Successful!',
+      text: 'Your account has been created successfully.',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = 'login.php';
+      }
+    });
+  </script>";
  
   } else {
- 
     $_SESSION['error'] = "Sorry, there was an error signing up.";
-   
+    }  
   }
- 
-}
- 
 ?>
  
 <!DOCTYPE html>
@@ -52,6 +39,7 @@ if (isset($_POST['register'])) {
   <title>Admin Registration</title>
   <link rel="stylesheet" href="./bootstrap-5.3.3-dist/css/bootstrap.css">
   <link rel="stylesheet" href="./package/dist/sweetalert2.css">
+ 
 </head>
 <body class="bg-light">
   <div class="container py-5">
@@ -72,7 +60,7 @@ if (isset($_POST['register'])) {
         <input type="text" name="username" id="username" class="form-control" placeholder="Enter your username" required>
         <div class="invalid-feedback">Username is required.</div>
       </div>
-      <div class="mb-3">
+       <div class="mb-3">
         <label for="email" class="form-label">Email</label>
         <input type="email" name="email" id="email" class="form-control" placeholder="Enter your email" required>
         <div class="invalid-feedback">Email is required.</div>
@@ -83,13 +71,13 @@ if (isset($_POST['register'])) {
         <div class="invalid-feedback">Password must be at least 6 characters long, include an uppercase letter, a number, and a special character.</div>      
       </div>
       <button type="submit" id="registerButton" name="register" class="btn btn-primary w-100">Register</button>
- 
+   <script src="./bootstrap-5.3.3-dist/js/bootstrap.js"></script>
+  <script src="./package/dist/sweetalert2.js"></script>
+  <?php echo $sweetAlertConfig; ?>
     </form>
   </div>
  
-  <script src="./bootstrap-5.3.3-dist/js/bootstrap.js"></script>
-  <script src="./package/dist/sweetalert2.js"></script>
-  <?php echo $sweetAlertConfig; ?>
+
   <script>
   // Function to validate individual fields
   function validateField(field, validationFn) {
@@ -111,7 +99,7 @@ if (isset($_POST['register'])) {
     return passwordRegex.test(value);
   };
  
-  // Real-time username validation using AJAX
+     // Real-time username validation using AJAX
   const checkUsernameAvailability = (usernameField) => {
     usernameField.addEventListener('input', () => {
       const username = usernameField.value.trim();
@@ -125,7 +113,7 @@ if (isset($_POST['register'])) {
       }
  
       // Send AJAX request to check username availability
-      fetch('ajax/check_username.php', {
+      fetch('AJAX/check_username.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -153,9 +141,9 @@ if (isset($_POST['register'])) {
     });
   };
  
-  // Real-time email validation using AJAX
+  // Real-time username validation using AJAX
   const checkEmailAvailability = (emailField) => {
-    emailField.addEventListener('input', () => {
+emailField.addEventListener('input', () => {
       const email = emailField.value.trim();
  
       if (email === '') {
@@ -166,8 +154,8 @@ if (isset($_POST['register'])) {
       return;
       }
  
-      // Send AJAX request to check email availability
-      fetch('ajax/check_email.php', {
+      // Send AJAX request to check username availability
+      fetch('AJAX/check_email.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -177,13 +165,13 @@ if (isset($_POST['register'])) {
         .then((response) => response.json())
         .then((data) => {
           if (data.exists) {
-            emailField.classList.remove('is-valid');
+           emailField.classList.remove('is-valid');
             emailField.classList.add('is-invalid');
             emailField.nextElementSibling.textContent = 'Email is already taken.';
             registerButton.disabled = true; // Disable the button
           } else {
-            emailField.classList.remove('is-invalid');
-            emailField.classList.add('is-valid');
+           emailField.classList.remove('is-invalid');
+           emailField.classList.add('is-valid');
             emailField.nextElementSibling.textContent = '';
             registerButton.disabled = false; // Enable the button
           }
@@ -194,7 +182,8 @@ if (isset($_POST['register'])) {
         });
     });
   };
-
+ 
+ 
   // Get form fields
   const firstName = document.getElementById('first_name');
   const lastName = document.getElementById('last_name');
@@ -205,10 +194,9 @@ if (isset($_POST['register'])) {
   // Attach real-time validation to each field
   validateField(firstName, isNotEmpty);
   validateField(lastName, isNotEmpty);
-  validateField(email, isNotEmpty);
   validateField(password, isPasswordValid);
-  checkEmailAvailability(email);
   checkUsernameAvailability(username);
+  checkEmailAvailability(email);
  
   // Form submission validation
   document.getElementById('registrationForm').addEventListener('submit', function (e) {
